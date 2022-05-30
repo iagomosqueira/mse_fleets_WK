@@ -24,18 +24,37 @@ ang <- readOutputss3('data/ang/')
 # BUILD objects
 
 stk <- buildFLSss330(ang)
+stk <- readFLSss3('data/ang/', wtatage=TRUE)
+srr <- buildFLSRss3(ang)
+residuals(srr) <- expand(residuals(srr), unit=c('F', 'M'))
+
+rps <- buildFLRPss330(ang)
 
 # CONSTRUCT conditioned om
 
-com <- FLom(stock=stk, projection=mseCtrl(method=fwd.om))
+com <- FLom(stock=stk, projection=mseCtrl(method=fwd.om), sr=srr, refpts=rps)
 
 plot(com)
+
+# TEST
+
+tes <- fwd(stk, sr=srr, catch=unitSums(catch(stk)[, ac(1970:2021)]),
+  deviances=expand(residuals(srr), unit=c('F', 'M')))
+
+plot(tes, stk)
+
+tes <- fwd(stk, sr=srr, catch=unitSums(catch(stk)[, ac(1970:2021)]))
+
+ctrl <- as(FLQuants(catch=unitSums(catch(stk)[, ac(1980:2021)])), 'fwdControl')
+
+# BUG: fwd to use deviances @ residuals
+tes <- fwd(com, control=ctrl,
+  deviances=expand(residuals(srr), unit=c('F', 'M')))
+
 
 # EXTEND and propagate
 
 om <- propagate(fwdWindow(com, end=fy), nit)
-
-refpts(om) <- buildFLRPss330(ang)
 
 # --- BUILD oem
 
@@ -69,16 +88,27 @@ fit <- FLQuants(
 
 iqs <- computeQ(sur, stk, fit=fit)
 
+# BUG: 2021
+iqs[[1]][,'2021'] <- iqs[[1]][,'2020']
+iqs[[2]][,'2021'] <- iqs[[2]][,'2020']
+
 index.q(sur[[1]]) <- iqs[[1]]
 index.q(sur[[2]]) <- iqs[[2]]
 
 sur[[1]] <- survey(stk, sur[[1]])
 sur[[2]] <- survey(stk, sur[[2]])
 
+sur <- fwdWindow(sur, end=2040)
+
 oem <- propagate(FLoem(method=sampling.oem,
-  observations=list(stk=stk, idx=fwdWindow(sur, end=2040))), nit)
+  observations=list(stk=stk, idx=sur),
+  deviances=list(
+    stk=FLQuants(
+      catch.n=rlnorm(20, catch.n(stk) %=% 0, 0.2)),
+    idx=FLQuants(Q1=rlnorm(20, index.q(sur[[1]]) %=% 0, 0.1),
+      Q2=rlnorm(20, index.q(sur[[2]]) %=% 0, 0.1)))),
+  nit)
 
 # SAVE
 
 save(om, oem, file="data/om_stock.Rdata", compress="xz")
-
