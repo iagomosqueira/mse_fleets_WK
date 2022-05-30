@@ -1,0 +1,8 @@
+1 Forecast=0 or -1, so rest of forecast file will not be read and can be omitted;
+1 A one year forecast using recent F will be done automatically
+2 for selectivity parmdevs, must change Fcast_Specify_Selex to 1 when using continue last dev
+3 for selectivity parmdevs, must change Fcast_Specify_Selex to 1 when using continue last dev
+4 1st iteration warning: ssb(endyr)/ssb(styr)= 1.20594e-08; suggest start with larger R0 to get near 0.4; or use depletion fleet option
+5 1st iteration warning: catch logL > 50% total logL; check configuration; suggest start with larger R0
+6 Final gradient: 0.00433893 is larger than final_conv: 0.0001
+N warnings: 6
