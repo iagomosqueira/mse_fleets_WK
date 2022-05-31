@@ -26,6 +26,7 @@ ang <- readOutputss3('data/ang/')
 # BUILD objects
 
 stk <- readFLSss3('data/ang/', wtatage=TRUE)
+range(stk, c("minfbar", "maxfbar")) <- c(3, 15)
 
 srr <- buildFLSRss3(ang)
 residuals(srr) <- expand(residuals(srr), unit=c('F', 'M'))

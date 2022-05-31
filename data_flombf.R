@@ -42,6 +42,7 @@ refpts(om, 1) <- buildFLRPss330(ang)
 # --- BUILD oem
 
 stk <- fwdWindow(readFLSss3('data/ang/', wtatage=TRUE), end=2040)
+range(stk, c("minfbar", "maxfbar")) <- c(3, 15)
 
 # BUG:
 

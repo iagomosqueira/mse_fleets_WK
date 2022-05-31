@@ -47,6 +47,24 @@ hckstk3 <- mp(om, oem=oem, ctrl=control, args=list(iy=2017, frq=3))
 plot(om, HS=hckstk, HS3=hckstk3, metrics=mets)
 
 
+# --- RUN xsa.sa + hockeystick.hcr
+
+library(FLXSA)
+
+control <- mpCtrl(list(
+  # xsa.sa
+  est = mseCtrl(method=xsa.sa),
+  # hockey-stick (catch ~ ssb)
+  hcr = mseCtrl(method=hockeystick.hcr,
+    args=list(lim=3000, trigger=12000, target=24000, min=1000,
+      metric="ssb", output="catch"))
+))
+
+xsamp <- mp(om, oem=oem, ctrl=control, args=mseargs)
+
+plot(om, xsamp, metrics=mets)
+
+
 # --- RUN mean length indicator + target level HCR
 
 control <- mpCtrl(list(
@@ -60,30 +78,16 @@ control <- mpCtrl(list(
 
 length <- mp(om, oem=oem, ctrl=control, args=mseargs)
 
-length3 <- mp(om, oem=oem, ctrl=control, args=list(iy=2021, frq=3))
+plot(om, length, metrics=mets)
 
 
-# --- TUNE MP for 60% P(SB = SBMSY) over years 2030:2040
+# --- RUNS
 
-# LOAD performance statistics
-
-data(statistics)
-
-# SET metrics
-
-mets <- list(SB=ssb)
-
-# TUNE
-
-tun <- tunebisect(om, oem=oem, control=control, args=mseargs,  
-  metrics=mets, statistic=statistics["PSBMSY"], years=2030:2035,
-  tune=list(target=c(60, 120)), prob=0.6, tol=0.01, maxit=12)
+plot(om, HSTK=hckstk, XSA=xsamp, LEN=length, metrics=mets)
 
 
-# --- ASSEMBLE MP runs
-
-runs <- list(TREND=trend, TREND2Y=trend3y, LEN=length, ICES=ices)
+runs <- list(HSTK=hckstk, HSTK3=hckstkk3, XSA=xsamp, LEN=length)
 
 plot(om, runs)
 
-save(runs, file="model/runs.Rdata", compress="xz")
+save(om, runs, file="model/runs.Rdata", compress="xz")
