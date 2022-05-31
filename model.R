@@ -49,6 +49,27 @@ control <- mpCtrl(list(
 hckstk <- mp(om, oem=oem, ctrl=control, args=mseargs)
 
 
+# --- RUN xsa.sa + hockeystick.hcr
+
+library(FLXSA)
+
+control <- mpCtrl(list(
+  # perfect.sa
+  est = mseCtrl(method=xsa.sa),
+  # hockey-stick (catch ~ ssb)
+  hcr = mseCtrl(method=hockeystick.hcr,
+    args=list(lim=12000, trigger=20000, target=2.41e4, min=100,
+      metric="ssb", output="catch")),
+  #
+  isys = mseCtrl(method=splitTAC.is, args=list(allocation=alloc))
+))
+
+# BUG:
+xsamp <- mp(om, oem=oem, ctrl=control, args=mseargs)
+
+
+
+
 # --- RUN mean length indicator + target level HCR
 
 control <- mpCtrl(list(
