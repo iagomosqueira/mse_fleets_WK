@@ -10,10 +10,10 @@
 library(mse)
 
 # LOAD OM
-load("data/sol2740.Rdata")
+load("data/flom.Rdata")
 
 # LOAD MP runs
-load("model/runs.Rdata")
+load("model/flomruns.Rdata")
 
 # SELECT statistics
 

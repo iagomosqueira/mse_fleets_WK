@@ -6,6 +6,11 @@
 #
 # Distributed under the terms of the EUPL-1.2
 
+
+library(mse)
+
+library(patchwork)
+
 # -- data_flom.R
 
 load("data/flom.Rdata")
@@ -25,17 +30,22 @@ tes <- fwd(com, control=ctrl,
   deviances=expand(residuals(srr), unit=c('F', 'M')))
 
 
-# ---
+# --- model_flombf.R
+
+load("data/flombf.Rdata")
+
 
 ctrl <- fwdControl(
 lapply(1:4, function(x)
-  list(year=2000:2021, fishery=x, catch=1, quant="catch",
-    value=c(unitSums(catch(fisheries(om)[[x]][[1]]))[, ac(2000:2021)])))
+  list(year=2022:2040, fishery=x, catch=1, quant="catch",
+    relYear=2021:2039, relFishery=x, relCatch=1, value=1))
 )
 
 hin <- fwd(om, control=ctrl)
 
-plot(hin) / plot(om)
+plot(hin)
+
+plot(window(hin) / plot(om)
 
 ctrl <- fwdControl(
   list(year=2000:2021, biol=1, quant="fbar", value=0, minAge=2, maxAge=12),
@@ -46,8 +56,6 @@ ctrl <- fwdControl(
 
 f0 <- fwd(om, control=ctrl)
 
-
-library(patchwork)
 
 plot(hin) / plot(om)
 plot(hin) / plot(f0)
